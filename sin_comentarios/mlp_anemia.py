@@ -6,7 +6,7 @@ import random
 import time
 from pathlib import Path
 
-NOMBRES_CLASES = ["sin_anemia", "anemia_leve", "anemia_moderada", "anemia_severa"]
+NOMBRES_CLASES = ["sin_anemia", "anemia_leve", "anemia_moderada"]
 COLUMNA_OBJETIVO = "target_anemia_codigo"
 SEMILLA = 42
 
@@ -19,9 +19,20 @@ def cargar_dataset(ruta_csv):
             col for col in lector.fieldnames
             if col not in ("target_anemia_nivel", COLUMNA_OBJETIVO)
         ]
-        for fila in lector:
+        for numero_fila, fila in enumerate(lector, start=2):
             vector = [float(fila[col]) for col in columnas_entrada]
             clase = int(fila[COLUMNA_OBJETIVO])
+            if not 0 <= clase < len(NOMBRES_CLASES):
+                raise ValueError(
+                    f"Etiqueta fuera del rango admitido en la fila {numero_fila}: {clase}. "
+                    f"El modelo admite códigos de 0 a {len(NOMBRES_CLASES) - 1}."
+                )
+            nivel = fila.get("target_anemia_nivel")
+            if nivel and nivel != NOMBRES_CLASES[clase]:
+                raise ValueError(
+                    f"Etiqueta inconsistente en la fila {numero_fila}: "
+                    f"código {clase} corresponde a {NOMBRES_CLASES[clase]}, no a {nivel}."
+                )
             entradas.append(vector)
             etiquetas.append(clase)
     return entradas, etiquetas, columnas_entrada
@@ -98,7 +109,7 @@ def crear_folds_estratificados(etiquetas, k_folds=5, semilla=SEMILLA):
         generador.shuffle(fold)
     return folds
 
-def calcular_pesos_clase(etiquetas, num_clases=4):
+def calcular_pesos_clase(etiquetas, num_clases=len(NOMBRES_CLASES)):
     total = len(etiquetas)
     conteos = [0] * num_clases
     for c in etiquetas:
@@ -116,7 +127,7 @@ def distancia_euclidiana_cuadrada(a, b):
 
 def balancear_entrenamiento(x_train, y_train, objetivos_por_clase=None, semilla=SEMILLA):
     if objetivos_por_clase is None:
-        objetivos_por_clase = {0: 800, 1: 600, 2: 500, 3: 150}
+        objetivos_por_clase = {0: 800, 1: 600, 2: 500}
 
     generador = random.Random(semilla)
     muestras_por_clase = {}
@@ -185,7 +196,7 @@ class RedNeuronalMLP:
         self,
         n_entradas,
         capas_ocultas=(64, 32),
-        n_salidas=4,
+        n_salidas=len(NOMBRES_CLASES),
         tasas_dropout=(0.3, 0.4),
         l2_lambda=1e-4,
         tasa_aprendizaje=0.001,
@@ -489,6 +500,8 @@ def evaluar_predicciones(y_real, y_pred, nombres_clases=NOMBRES_CLASES):
     n_clases = len(nombres_clases)
     matriz = [[0] * n_clases for _ in range(n_clases)]
     for real, pred in zip(y_real, y_pred):
+        if not 0 <= real < n_clases or not 0 <= pred < n_clases:
+            raise ValueError(f"Etiqueta o predicción fuera del rango de clases: real={real}, predicho={pred}.")
         matriz[real][pred] += 1
 
     total = len(y_real)
@@ -577,7 +590,9 @@ def ejecutar_entrenamiento(
             metricas_folds.append(m_fold)
 
     if callback_estado:
-        callback_estado("Entrenando modelo MLP final (97 → 64 → 32 → 4)...")
+        callback_estado(
+            f"Entrenando modelo MLP final ({len(columnas)} → 64 → 32 → {len(NOMBRES_CLASES)})..."
+        )
     xf_tr, xf_va, yf_tr, yf_va = division_estratificada(x_train, y_train, proporcion_prueba=0.20, semilla=SEMILLA)
     xf_tr_bal, yf_tr_bal = balancear_entrenamiento(xf_tr, yf_tr, semilla=SEMILLA)
     pesos_final = calcular_pesos_clase(yf_tr_bal)
@@ -629,7 +644,17 @@ def ejecutar_entrenamiento(
     return modelo_final, resultados
 
 def predecir_nino(modelo, meta, datos_usuario):
+    if modelo.n_salidas != len(NOMBRES_CLASES):
+        raise ValueError(
+            f"El modelo guardado tiene {modelo.n_salidas} salidas, "
+            f"pero esta versión requiere {len(NOMBRES_CLASES)}."
+        )
     vector = transformar_datos_usuario(datos_usuario, meta)
+    if len(vector) != modelo.n_entradas:
+        raise ValueError(
+            f"El preprocesador genera {len(vector)} características, "
+            f"pero el modelo espera {modelo.n_entradas}."
+        )
     probs = modelo.predecir_probabilidades([vector])[0]
     clase_idx = max(range(len(probs)), key=lambda i: probs[i])
     return {

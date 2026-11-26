@@ -7886,13 +7886,13 @@ a.anchor-link {
     <span class="mi">1</span><span class="p">:</span> <span class="s2">"Amazonas"</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">"Áncash"</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s2">"Cajamarca"</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="s2">"La Libertad"</span><span class="p">,</span>
     <span class="mi">14</span><span class="p">:</span> <span class="s2">"Lambayeque"</span><span class="p">,</span> <span class="mi">20</span><span class="p">:</span> <span class="s2">"Piura"</span><span class="p">,</span> <span class="mi">22</span><span class="p">:</span> <span class="s2">"San Martín"</span><span class="p">,</span> <span class="mi">24</span><span class="p">:</span> <span class="s2">"Tumbes"</span><span class="p">,</span>
 <span class="p">}</span>
-<span class="n">TARGET_ORDER</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"sin_anemia"</span><span class="p">,</span> <span class="s2">"anemia_leve"</span><span class="p">,</span> <span class="s2">"anemia_moderada"</span><span class="p">,</span> <span class="s2">"anemia_severa"</span><span class="p">]</span>
+<span class="n">TARGET_ORDER</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"sin_anemia"</span><span class="p">,</span> <span class="s2">"anemia_leve"</span><span class="p">,</span> <span class="s2">"anemia_moderada"</span><span class="p">]</span>
 <span class="n">AGE_MIN_MONTHS</span><span class="p">,</span> <span class="n">AGE_MAX_MONTHS</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span>
 
 <span class="c1"># Categorías vigentes de referencia (2024); verificar antes de uso clínico.</span>
 <span class="n">HB_CUTOFF_6_23_MONTHS</span> <span class="o">=</span> <span class="mf">10.5</span>
 <span class="n">HB_CUTOFF_24_59_MONTHS</span> <span class="o">=</span> <span class="mf">11.0</span>
-<span class="n">HB_SEVERE_CUTOFF</span> <span class="o">=</span> <span class="mf">7.0</span>
+<span class="n">HB_MIN_INCLUDED_CUTOFF</span> <span class="o">=</span> <span class="mf">7.0</span>
 <span class="n">HB_MODERATE_CUTOFF</span> <span class="o">=</span> <span class="mf">10.0</span>
 <span class="n">ALTITUDE_MIN_METERS</span> <span class="o">=</span> <span class="mi">1000</span>
 </pre></div>
@@ -8698,14 +8698,43 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>  • Cobertura REC43: {'both': 18841, 'left_only': 0, 'right_only': 0}
-
-  • Cobertura REC95: {'both': 18841, 'left_only': 0, 'right_only': 0}
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>  • Cobertura REC95: {'both': 18841, 'left_only': 0, 'right_only': 0}
   • Cobertura REC0111: {'both': 18841, 'left_only': 0, 'right_only': 0}
-  • Cobertura REC91: {'both': 18841, 'left_only': 0, 'right_only': 0}
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>  • Cobertura REC91: {'both': 18841, 'left_only': 0, 'right_only': 0}
 • CASEID vs HHID de la madre no coincidentes: 0
-  • Cobertura RECH0: {'both': 18841, 'left_only': 0, 'right_only': 0}
-  • Cobertura RECH23: {'both': 18841, 'left_only': 0, 'right_only': 0}
-• Asignación de sexo: 877 sin candidato único; 251 con candidatos ambiguos.
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>  • Cobertura RECH0: {'both': 18841, 'left_only': 0, 'right_only': 0}
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>  • Cobertura RECH23: {'both': 18841, 'left_only': 0, 'right_only': 0}
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>• Asignación de sexo: 877 sin candidato único; 251 con candidatos ambiguos.
 • Filas antes de filtrar edad y macrorregión: 18,841
 • Filas después de filtrar edad y macrorregión norte: 5,398
 </pre>
@@ -8757,12 +8786,11 @@ a.anchor-link {
 <span class="p">)</span>
 <span class="n">child</span><span class="p">[</span><span class="s2">"target_anemia_nivel"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
     <span class="p">[</span>
-        <span class="n">hb_adjusted_audit</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">HB_SEVERE_CUTOFF</span><span class="p">),</span>
-        <span class="n">hb_adjusted_audit</span><span class="o">.</span><span class="n">ge</span><span class="p">(</span><span class="n">HB_SEVERE_CUTOFF</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">hb_adjusted_audit</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">HB_MODERATE_CUTOFF</span><span class="p">),</span>
+        <span class="n">hb_adjusted_audit</span><span class="o">.</span><span class="n">ge</span><span class="p">(</span><span class="n">HB_MIN_INCLUDED_CUTOFF</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">hb_adjusted_audit</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">HB_MODERATE_CUTOFF</span><span class="p">),</span>
         <span class="n">hb_adjusted_audit</span><span class="o">.</span><span class="n">ge</span><span class="p">(</span><span class="n">HB_MODERATE_CUTOFF</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">hb_adjusted_audit</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">hb_cutoff</span><span class="p">),</span>
         <span class="n">hb_adjusted_audit</span><span class="o">.</span><span class="n">ge</span><span class="p">(</span><span class="n">hb_cutoff</span><span class="p">),</span>
     <span class="p">],</span>
-    <span class="p">[</span><span class="s2">"anemia_severa"</span><span class="p">,</span> <span class="s2">"anemia_moderada"</span><span class="p">,</span> <span class="s2">"anemia_leve"</span><span class="p">,</span> <span class="s2">"sin_anemia"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"anemia_moderada"</span><span class="p">,</span> <span class="s2">"anemia_leve"</span><span class="p">,</span> <span class="s2">"sin_anemia"</span><span class="p">],</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">child</span><span class="p">[</span><span class="s2">"target_anemia_nivel"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
@@ -8876,7 +8904,7 @@ a.anchor-link {
 </tr>
 <tr>
 <th>target_anemia_nivel</th>
-<td>99</td>
+<td>103</td>
 </tr>
 <tr>
 <th>sex</th>
@@ -8983,7 +9011,13 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>
-• Calidad de datos: conversiones numéricas
+• Calidad de datos: conversiones numéricas</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
 </pre>
 </div>
 </div>
@@ -9144,119 +9178,119 @@ a.anchor-link {
 <tbody>
 <tr>
 <th>age_months</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>sex</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>weight_raw</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>height_raw</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>haz_raw</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>waz_raw</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>whz_raw</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>water_source</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>sanitation</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>floor_material</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>wall_material</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>roof_material</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>wealth_quintile</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>wealth_score</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>department</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>residence_code</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>altitude_m</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>household_persons</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>children_under5</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>mother_education</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>mother_language</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>juntos_code</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>diarrhea_code</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>fever_code</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>cough_code</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>vitamin_a_6m_code</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>iron_syrup_code</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>iron_drops_code</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>iron_micronutrients_code</th>
-<td>str</td>
+<td>object</td>
 </tr>
 <tr>
 <th>target_anemia_nivel</th>
@@ -9327,11 +9361,7 @@ a.anchor-link {
 </tr>
 <tr>
 <th>&lt;NA&gt;</th>
-<td>99</td>
-</tr>
-<tr>
-<th>anemia_severa</th>
-<td>4</td>
+<td>103</td>
 </tr>
 </tbody>
 </table>
@@ -9474,7 +9504,7 @@ a.anchor-link {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h2 id="5.-Divisi%C3%B3n-estratificada-del-dataset">5. División estratificada del dataset<a class="anchor-link" href="#5.-Divisi%C3%B3n-estratificada-del-dataset">¶</a></h2><p>Se separan las observaciones en entrenamiento (80 %) y prueba (20 %) antes de ajustar imputadores, escaladores o codificadores. El conjunto de prueba queda reservado para evaluar el modelo; el preprocesador se ajusta solo con entrenamiento y luego transforma ambos conjuntos, evitando fuga de información. La estratificación por nivel de anemia es una práctica habitual en clasificación para mantener la representación de las clases, como se ilustra en estudios de predicción de anemia con un conjunto de prueba independiente (<a href="https://pubmed.ncbi.nlm.nih.gov/41413508/">Kamalzadeh et al., 2025; estudio en adultos, split 70/30</a>; <a href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html">documentación de <code>train_test_split</code></a>).</p>
-<p><strong>Límite de los datos:</strong> hay solo 4 registros de anemia severa. Como los recuentos deben ser enteros, con esa clase no es posible mantener exactamente la misma proporción en ambas particiones al asignar el 20 % a prueba; <code>stratify=y</code> conserva la distribución de la forma más cercana posible. La tabla siguiente permite comprobar los recuentos, porcentajes y diferencias observadas.</p>
+<p><strong>Alcance del objetivo:</strong> se excluyen antes de la partición los registros con hemoglobina ajustada menor que 7 g/dL. Entrenamiento y prueba contienen solo <code>sin_anemia</code>, <code>anemia_leve</code> y <code>anemia_moderada</code>; <code>stratify=y</code> conserva su distribución entre ambos conjuntos.</p>
 </div>
 </div>
 </div>
@@ -9535,10 +9565,10 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>• Dimensiones de las particiones de entrenamiento y prueba:
-  • X_train: (4239, 27)
-  • X_test:  (1060, 27)
-  • y_train: (4239,)
-  • y_test:  (1060,)
+  • X_train: (4236, 27)
+  • X_test:  (1059, 27)
+  • y_train: (4236,)
+  • y_test:  (1059,)
 </pre>
 </div>
 </div>
@@ -9588,17 +9618,17 @@ a.anchor-link {
 <tr>
 <th>sin_anemia</th>
 <td>3204</td>
-<td>75.58</td>
+<td>75.64</td>
 <td>801</td>
-<td>75.57</td>
-<td>-0.02</td>
+<td>75.64</td>
+<td>0.0</td>
 </tr>
 <tr>
 <th>anemia_leve</th>
 <td>687</td>
-<td>16.21</td>
+<td>16.22</td>
 <td>172</td>
-<td>16.23</td>
+<td>16.24</td>
 <td>0.02</td>
 </tr>
 <tr>
@@ -9606,16 +9636,8 @@ a.anchor-link {
 <td>345</td>
 <td>8.14</td>
 <td>86</td>
-<td>8.11</td>
-<td>-0.03</td>
-</tr>
-<tr>
-<th>anemia_severa</th>
-<td>3</td>
-<td>0.07</td>
-<td>1</td>
-<td>0.09</td>
-<td>0.02</td>
+<td>8.12</td>
+<td>-0.02</td>
 </tr>
 </tbody>
 </table>
@@ -9671,9 +9693,8 @@ a.anchor-link {
 <span class="n">final</span><span class="p">[</span><span class="s2">"target_anemia_nivel"</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="n">final</span><span class="p">[</span><span class="s2">"target_anemia_codigo"</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_codes</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"int8"</span><span class="p">)</span>
 
-<span class="n">registros_anemia_severa</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">final</span><span class="p">[</span><span class="s2">"target_anemia_nivel"</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="s2">"anemia_severa"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
-<span class="n">final</span> <span class="o">=</span> <span class="n">final</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">final</span><span class="p">[</span><span class="s2">"target_anemia_nivel"</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="s2">"anemia_severa"</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"• Registros excluidos por anemia_severa: </span><span class="si">{</span><span class="n">registros_anemia_severa</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">final</span><span class="p">[</span><span class="s2">"target_anemia_nivel"</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">TARGET_ORDER</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"El CSV final contiene niveles fuera de las tres clases admitidas."</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -9688,9 +9709,8 @@ a.anchor-link {
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>
 • Preprocesamiento ajustado solo con entrenamiento:
-  • X_train_ready: (4239, 91)
-  • X_test_ready: (1060, 91)
-• Registros excluidos por anemia_severa: 4
+  • X_train_ready: (4236, 91)
+  • X_test_ready: (1059, 91)
 </pre>
 </div>
 </div>
@@ -9905,7 +9925,7 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>  • Diferencia final - inicial: -103 filas; +53 columnas.
-  • Filas excluidas por falta de etiqueta de hemoglobina: 99
+  • Filas excluidas por falta de etiqueta de hemoglobina: 103
 
 • Balance final de clases
 </pre>
@@ -9958,10 +9978,6 @@ a.anchor-link {
 <th>anemia_moderada</th>
 <td>431</td>
 </tr>
-<tr>
-<th>anemia_severa</th>
-<td>0</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -9970,9 +9986,15 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>  • Codificación ordinal del objetivo: {0: 'sin_anemia', 1: 'anemia_leve', 2: 'anemia_moderada', 3: 'anemia_severa'}
+<pre>  • Codificación ordinal del objetivo: {0: 'sin_anemia', 1: 'anemia_leve', 2: 'anemia_moderada'}
   • Columnas de salida: 93 (sin hemoglobina cruda ni ajustada)
-
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
 • Archivo CSV exportado: C:\PROYECTODSI\ENDES_2025_MLP_macrorregion_norte.csv
 </pre>
 </div>
@@ -10136,16 +10158,16 @@ a.anchor-link {
     <span class="p">{</span>
         <span class="s2">"módulo"</span><span class="p">:</span> <span class="s2">"(derivada)"</span><span class="p">,</span> <span class="s2">"nombre_antiguo (ENDES)"</span><span class="p">:</span> <span class="s2">"HW53 + HV040 + HW1"</span><span class="p">,</span>
         <span class="s2">"nombre_nuevo"</span><span class="p">:</span> <span class="s2">"target_anemia_nivel"</span><span class="p">,</span>
-        <span class="s2">"descripción (diccionario .md)"</span><span class="p">:</span> <span class="s2">"No está en los .md. Nivel de anemia del niño (sin_anemia, anemia_leve, anemia_moderada, anemia_severa), calculado con la hemoglobina HW53 ajustada por altitud (HV040) y los umbrales según la edad (HW1)."</span><span class="p">,</span>
+        <span class="s2">"descripción (diccionario .md)"</span><span class="p">:</span> <span class="s2">"No está en los .md. Nivel de anemia del niño (sin_anemia, anemia_leve o anemia_moderada), calculado con la hemoglobina HW53 ajustada por altitud (HV040) y los umbrales según la edad (HW1). Se excluyen valores bajo el umbral mínimo incluido."</span><span class="p">,</span>
         <span class="s2">"tipo"</span><span class="p">:</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"longitud"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"rango"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
         <span class="s2">"nombre en matriz de modelado"</span><span class="p">:</span> <span class="s2">"target_anemia_nivel"</span><span class="p">,</span> <span class="s2">"columna(s) en el CSV"</span><span class="p">:</span> <span class="s2">"target_anemia_nivel"</span><span class="p">,</span>
-        <span class="s2">"tratamiento"</span><span class="p">:</span> <span class="s2">"Objetivo de clasificación; se excluyen los niños sin Hb válida."</span><span class="p">,</span>
+        <span class="s2">"tratamiento"</span><span class="p">:</span> <span class="s2">"Objetivo de clasificación; se excluyen los niños sin Hb válida o bajo el umbral mínimo incluido."</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
         <span class="s2">"módulo"</span><span class="p">:</span> <span class="s2">"(derivada)"</span><span class="p">,</span> <span class="s2">"nombre_antiguo (ENDES)"</span><span class="p">:</span> <span class="s2">"HW53 + HV040 + HW1"</span><span class="p">,</span>
         <span class="s2">"nombre_nuevo"</span><span class="p">:</span> <span class="s2">"target_anemia_codigo"</span><span class="p">,</span>
-        <span class="s2">"descripción (diccionario .md)"</span><span class="p">:</span> <span class="s2">"No está en los .md. Versión numérica ordinal del objetivo: 0 = sin_anemia, 1 = anemia_leve, 2 = anemia_moderada, 3 = anemia_severa."</span><span class="p">,</span>
-        <span class="s2">"tipo"</span><span class="p">:</span> <span class="s2">"N"</span><span class="p">,</span> <span class="s2">"longitud"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"rango"</span><span class="p">:</span> <span class="s2">"0:3"</span><span class="p">,</span>
+        <span class="s2">"descripción (diccionario .md)"</span><span class="p">:</span> <span class="s2">"No está en los .md. Versión numérica ordinal del objetivo: 0 = sin_anemia, 1 = anemia_leve, 2 = anemia_moderada."</span><span class="p">,</span>
+        <span class="s2">"tipo"</span><span class="p">:</span> <span class="s2">"N"</span><span class="p">,</span> <span class="s2">"longitud"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"rango"</span><span class="p">:</span> <span class="s2">"0:2"</span><span class="p">,</span>
         <span class="s2">"nombre en matriz de modelado"</span><span class="p">:</span> <span class="s2">"target_anemia_codigo"</span><span class="p">,</span> <span class="s2">"columna(s) en el CSV"</span><span class="p">:</span> <span class="s2">"target_anemia_codigo"</span><span class="p">,</span>
         <span class="s2">"tratamiento"</span><span class="p">:</span> <span class="s2">"Codificación ordinal de target_anemia_nivel (TARGET_ORDER)."</span><span class="p">,</span>
     <span class="p">},</span>
@@ -10799,23 +10821,23 @@ a.anchor-link {
 <td>(derivada)</td>
 <td>HW53 + HV040 + HW1</td>
 <td>target_anemia_nivel</td>
-<td>No está en los .md. Nivel de anemia del niño (sin_anemia, anemia_leve, anemia_moderada, anemia_severa), calculado con la hemoglobina HW53 ajustada por altitud (HV040) y los umbrales según la edad (HW1).</td>
+<td>No está en los .md. Nivel de anemia del niño (sin_anemia, anemia_leve o anemia_moderada), calculado con la hemoglobina HW53 ajustada por altitud (HV040) y los umbrales según la edad (HW1). Se excluyen valores bajo el umbral mínimo incluido.</td>
 <td>A</td>
 <td></td>
 <td></td>
 <td>target_anemia_nivel</td>
 <td>target_anemia_nivel</td>
-<td>Objetivo de clasificación; se excluyen los niños sin Hb válida.</td>
+<td>Objetivo de clasificación; se excluyen los niños sin Hb válida o bajo el umbral mínimo incluido.</td>
 </tr>
 <tr>
 <th>46</th>
 <td>(derivada)</td>
 <td>HW53 + HV040 + HW1</td>
 <td>target_anemia_codigo</td>
-<td>No está en los .md. Versión numérica ordinal del objetivo: 0 = sin_anemia, 1 = anemia_leve, 2 = anemia_moderada, 3 = anemia_severa.</td>
+<td>No está en los .md. Versión numérica ordinal del objetivo: 0 = sin_anemia, 1 = anemia_leve, 2 = anemia_moderada.</td>
 <td>N</td>
 <td></td>
-<td>0:3</td>
+<td>0:2</td>
 <td>target_anemia_codigo</td>
 <td>target_anemia_codigo</td>
 <td>Codificación ordinal de target_anemia_nivel (TARGET_ORDER).</td>
@@ -11753,7 +11775,7 @@ a.anchor-link {
 <td>target_anemia_nivel</td>
 <td>HW53 + HV040 + HW1</td>
 <td></td>
-<td>No está en los .md. Nivel de anemia del niño (sin_anemia, anemia_leve, anemia_moderada, anemia_severa), calculado con la hemoglobina HW53 ajustada por altitud (HV040) y los umbrales según la edad (HW1).</td>
+<td>No está en los .md. Nivel de anemia del niño (sin_anemia, anemia_leve o anemia_moderada), calculado con la hemoglobina HW53 ajustada por altitud (HV040) y los umbrales según la edad (HW1). Se excluyen valores bajo el umbral mínimo incluido.</td>
 </tr>
 <tr>
 <th>92</th>
@@ -11762,7 +11784,7 @@ a.anchor-link {
 <td>target_anemia_codigo</td>
 <td>HW53 + HV040 + HW1</td>
 <td></td>
-<td>No está en los .md. Versión numérica ordinal del objetivo: 0 = sin_anemia, 1 = anemia_leve, 2 = anemia_moderada, 3 = anemia_severa.</td>
+<td>No está en los .md. Versión numérica ordinal del objetivo: 0 = sin_anemia, 1 = anemia_leve, 2 = anemia_moderada.</td>
 </tr>
 </tbody>
 </table>

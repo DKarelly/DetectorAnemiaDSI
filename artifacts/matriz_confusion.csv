@@ -1,5 +1,4 @@
-﻿real\predicho,sin_anemia,anemia_leve,anemia_moderada,anemia_severa
-sin_anemia,1765,226,486,16
-anemia_leve,318,76,130,2
-anemia_moderada,57,27,186,3
-anemia_severa,1,0,2,0
+﻿real\predicho,sin_anemia,anemia_leve,anemia_moderada
+sin_anemia,461,164,176
+anemia_leve,72,56,44
+anemia_moderada,16,13,57

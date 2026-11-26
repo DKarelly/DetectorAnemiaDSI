@@ -16,14 +16,12 @@ ETIQUETAS_BONITAS = {
     "sin_anemia": "Sin Anemia",
     "anemia_leve": "Anemia Leve",
     "anemia_moderada": "Anemia Moderada",
-    "anemia_severa": "Anemia Severa",
 }
 
 COLORES_CLASE = {
     "sin_anemia": "#16a34a",
     "anemia_leve": "#d97706",
     "anemia_moderada": "#ea580c",
-    "anemia_severa": "#dc2626",
 }
 
 EDUCACION_OPCIONES = {
@@ -351,10 +349,25 @@ class AplicacionAnemia(tk.Tk):
         if self.ruta_meta.exists():
             self.meta = cargar_preprocesador(self.ruta_meta)
         if self.ruta_modelo.exists():
-            self.modelo = RedNeuronalMLP.cargar(self.ruta_modelo)
+            modelo_guardado = RedNeuronalMLP.cargar(self.ruta_modelo)
+            if modelo_guardado.n_salidas == len(NOMBRES_CLASES):
+                self.modelo = modelo_guardado
+            else:
+                self.lbl_estado_train.config(
+                    text="Estado: Modelo desactualizado; vuelve a entrenar."
+                )
         if self.ruta_metricas.exists():
-            self.metricas = json.loads(self.ruta_metricas.read_text(encoding="utf-8"))
-            self._actualizar_vistas_metricas()
+            metricas_guardadas = json.loads(self.ruta_metricas.read_text(encoding="utf-8"))
+            matriz = metricas_guardadas.get("metricas_prueba", {}).get("matriz_confusion", [])
+            if len(matriz) == len(NOMBRES_CLASES) and all(
+                len(fila) == len(NOMBRES_CLASES) for fila in matriz
+            ):
+                self.metricas = metricas_guardadas
+                self._actualizar_vistas_metricas()
+            else:
+                self.lbl_estado_train.config(
+                    text="Estado: Métricas desactualizadas; vuelve a entrenar."
+                )
         self._dibujar_barras_probabilidad({c: 0.0 for c in NOMBRES_CLASES})
 
     def _restaurar_ejemplo(self):
@@ -497,7 +510,7 @@ class AplicacionAnemia(tk.Tk):
     def _dibujar_matriz_confusion(self, matriz):
         c = self.canvas_cm
         c.delete("all")
-        etiquetas_cortas = ["Sin\nanemia", "Leve", "Moderada", "Severa"]
+        etiquetas_cortas = ["Sin\nanemia", "Leve", "Moderada"]
         x0, y0 = 90, 55
         celda = 66
         max_val = max(max(fila) for fila in matriz) or 1

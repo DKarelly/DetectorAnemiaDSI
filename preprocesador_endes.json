@@ -33,8 +33,6 @@
     "cat__servicio_higienico_21",
     "cat__servicio_higienico_22",
     "cat__servicio_higienico_23",
-    "cat__servicio_higienico_24",
-    "cat__servicio_higienico_31",
     "cat__servicio_higienico_32",
     "cat__servicio_higienico_96",
     "cat__material_piso_11",
@@ -50,7 +48,6 @@
     "cat__material_paredes_21",
     "cat__material_paredes_22",
     "cat__material_paredes_23",
-    "cat__material_paredes_24",
     "cat__material_paredes_31",
     "cat__material_paredes_32",
     "cat__material_paredes_33",
@@ -63,7 +60,6 @@
     "cat__material_techo_32",
     "cat__material_techo_33",
     "cat__material_techo_34",
-    "cat__material_techo_41",
     "cat__material_techo_96",
     "cat__quintil_riqueza_1",
     "cat__quintil_riqueza_2",
@@ -89,8 +85,6 @@
     "cat__lengua_madre_11",
     "cat__lengua_madre_12",
     "cat__lengua_madre_4",
-    "cat__lengua_madre_5",
-    "cat__lengua_madre_6",
     "cat__juntos_Sin dato",
     "cat__diarrea_14d_No",
     "cat__diarrea_14d_Sí",
@@ -106,8 +100,7 @@
   "target_order": [
     "sin_anemia",
     "anemia_leve",
-    "anemia_moderada",
-    "anemia_severa"
+    "anemia_moderada"
   ],
   "numeric_columns": [
     "edad_meses",
@@ -219,8 +212,6 @@
       "21",
       "22",
       "23",
-      "24",
-      "31",
       "32",
       "96"
     ],
@@ -240,7 +231,6 @@
       "21",
       "22",
       "23",
-      "24",
       "31",
       "32",
       "33",
@@ -255,7 +245,6 @@
       "32",
       "33",
       "34",
-      "41",
       "96"
     ],
     [
@@ -290,9 +279,7 @@
       "10",
       "11",
       "12",
-      "4",
-      "5",
-      "6"
+      "4"
     ],
     [
       "Sin dato"
