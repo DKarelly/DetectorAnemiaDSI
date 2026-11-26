@@ -10,6 +10,8 @@ import time
 from pathlib import Path
 
 
+# El índice de cada nombre debe coincidir con el código ordinal guardado en el CSV
+# y con la neurona de salida que representa esa clase.
 NOMBRES_CLASES = ["sin_anemia", "anemia_leve", "anemia_moderada"]
 COLUMNA_OBJETIVO = "target_anemia_codigo"
 SEMILLA = 42
@@ -25,6 +27,7 @@ def cargar_dataset(ruta_csv):
     etiquetas = []
     with open(ruta_csv, mode="r", encoding="utf-8-sig", newline="") as archivo:
         lector = csv.DictReader(archivo)
+        # Excluyo ambas columnas de objetivo para que nunca entren como características del modelo.
         columnas_entrada = [
             col for col in lector.fieldnames
             if col not in ("target_anemia_nivel", COLUMNA_OBJETIVO)
@@ -32,12 +35,14 @@ def cargar_dataset(ruta_csv):
         for numero_fila, fila in enumerate(lector, start=2):
             vector = [float(fila[col]) for col in columnas_entrada]
             clase = int(fila[COLUMNA_OBJETIVO])
+            # El modelo tiene una salida por clase; un código ajeno indicaría un CSV incompatible.
             if not 0 <= clase < len(NOMBRES_CLASES):
                 raise ValueError(
                     f"Etiqueta fuera del rango admitido en la fila {numero_fila}: {clase}. "
                     f"El modelo admite códigos de 0 a {len(NOMBRES_CLASES) - 1}."
                 )
             nivel = fila.get("target_anemia_nivel")
+            # Compruebo que la etiqueta legible coincida con su código ordinal.
             if nivel and nivel != NOMBRES_CLASES[clase]:
                 raise ValueError(
                     f"Etiqueta inconsistente en la fila {numero_fila}: "
@@ -60,7 +65,8 @@ def transformar_datos_usuario(datos_usuario, meta):
     # al vector numérico estandarizado y codificado en One-Hot que espera la capa de entrada del MLP.
     vector = []
 
-    # Primero estandarizo las 10 variables numéricas usando (valor - media) / desviación.
+    # Uso las estadísticas guardadas al entrenar: imputo ausentes con la mediana y aplico z-score.
+    # Así un dato nuevo queda en la misma escala que las entradas con que aprendió la red.
     for i, col in enumerate(meta["numeric_columns"]):
         valor = datos_usuario.get(col)
         if valor is None or valor == "":
@@ -72,7 +78,7 @@ def transformar_datos_usuario(datos_usuario, meta):
         z = (valor - media) / desv if desv > 0 else 0.0
         vector.append(z)
 
-    # Luego codifico las 17 variables categóricas con One-Hot (1 en la categoría elegida, 0 en el resto).
+    # Codifico cada categoría como una posición binaria; una categoría no conocida queda en ceros.
     for i, col in enumerate(meta["categorical_columns"]):
         valor = datos_usuario.get(col)
         if valor is None or str(valor).strip() == "":
@@ -91,7 +97,7 @@ def transformar_datos_usuario(datos_usuario, meta):
 
 def division_estratificada(entradas, etiquetas, proporcion_prueba=0.20, semilla=SEMILLA):
     # Agrupo los índices por clase para que entrenamiento (80%) y prueba (20%)
-    # conserven la misma proporción de cada nivel de anemia.
+    # conserven, aproximadamente, la proporción de cada nivel de anemia.
     generador = random.Random(semilla)
     indices_por_clase = {}
     for idx, clase in enumerate(etiquetas):
@@ -102,6 +108,7 @@ def division_estratificada(entradas, etiquetas, proporcion_prueba=0.20, semilla=
     for clase in sorted(indices_por_clase):
         indices = indices_por_clase[clase][:]
         generador.shuffle(indices)
+        # Redondeo el tamaño de prueba por clase y reservo al menos un caso para entrenar.
         n_prueba = max(1, round(len(indices) * proporcion_prueba))
         if len(indices) - n_prueba < 1:
             n_prueba = max(0, len(indices) - 1)
@@ -120,7 +127,7 @@ def division_estratificada(entradas, etiquetas, proporcion_prueba=0.20, semilla=
 
 def crear_folds_estratificados(etiquetas, k_folds=5, semilla=SEMILLA):
     # Reparto los índices de cada clase en k particiones de forma equilibrada
-    # para ejecutar validación cruzada estratificada sin usar scikit-learn.
+    # para que cada fold contenga representantes de las clases, sin usar scikit-learn.
     generador = random.Random(semilla)
     indices_por_clase = {}
     for idx, clase in enumerate(etiquetas):
@@ -140,7 +147,7 @@ def crear_folds_estratificados(etiquetas, k_folds=5, semilla=SEMILLA):
 
 def calcular_pesos_clase(etiquetas, num_clases=len(NOMBRES_CLASES)):
     # Calculo pesos inversamente proporcionales a la frecuencia de cada clase:
-    # n_total / (num_clases * n_clase). Así penalizo más los errores en clases minoritarias.
+    # n_total / (num_clases * n_clase). Las clases menos frecuentes reciben mayor peso en la pérdida.
     total = len(etiquetas)
     conteos = [0] * num_clases
     for c in etiquetas:
@@ -160,9 +167,9 @@ def distancia_euclidiana_cuadrada(a, b):
 
 
 def balancear_entrenamiento(x_train, y_train, objetivos_por_clase=None, semilla=SEMILLA):
-    # Balanceo SOLO el conjunto de entrenamiento (nunca la validación ni la prueba):
+    # Balanceo SOLO el conjunto de entrenamiento para no contaminar la validación ni la prueba:
     # - Aplico submuestreo en la clase mayoritaria (sin_anemia).
-    # - Aplico SMOTE (interpolación entre vecinos reales) en clases minoritarias.
+    # - Aplico SMOTE, interpolando vecinos de la misma clase para las clases minoritarias.
     if objetivos_por_clase is None:
         objetivos_por_clase = {0: 800, 1: 600, 2: 500}
 
@@ -191,6 +198,7 @@ def balancear_entrenamiento(x_train, y_train, objetivos_por_clase=None, semilla=
             n_reales = len(muestras)
 
             if n_reales == 1:
+                # Sin vecinos disponibles, repito la única muestra real de esa clase.
                 for _ in range(faltantes):
                     x_bal.append(muestras[0][:])
                     y_bal.append(clase)
@@ -207,7 +215,7 @@ def balancear_entrenamiento(x_train, y_train, objetivos_por_clase=None, semilla=
                 distancias.sort(key=lambda par: par[0])
                 vecinos_por_muestra.append([j for _, j in distancias[:k_vecinos]])
 
-            # Creo cada ejemplo sintético interpolando entre un punto real y uno de sus vecinos.
+            # Interpolo entre dos casos cercanos de la misma clase; no copio datos de otras clases.
             for _ in range(faltantes):
                 i = generador.randrange(n_reales)
                 vecino_idx = generador.choice(vecinos_por_muestra[i])
@@ -229,12 +237,14 @@ def balancear_entrenamiento(x_train, y_train, objetivos_por_clase=None, semilla=
 # ---------------------------------------------------------------------------
 
 def producto_punto(a, b):
-    # Uso operator.mul y sum (nativos de Python) porque multiplican listas mucho más rápido que un bucle manual.
+    # Calculo la suma de productos entre dos vectores: cada peso se multiplica por su entrada.
+    # operator.mul permite expresar esa operación con las funciones nativas de Python.
     return sum(map(operator.mul, a, b))
 
 
 def softmax(logits):
-    # Resto el máximo antes de aplicar exp() para evitar desbordamientos numéricos (overflow).
+    # Convierto los puntajes de salida en probabilidades cuya suma es 1.
+    # Restar el máximo antes de exp() evita desbordamientos sin cambiar el resultado relativo.
     max_val = max(logits)
     exps = [math.exp(v - max_val) for v in logits]
     suma = sum(exps)
@@ -243,7 +253,8 @@ def softmax(logits):
 
 class RedNeuronalMLP:
     # Implemento una red neuronal feedforward con dos capas ocultas (64 y 32 neuronas),
-    # activación ReLU en capas ocultas, Softmax en salida, Dropout, penalización L2 y optimizador Adam.
+    # ReLU en capas ocultas y Softmax en la salida. Dropout y L2 ayudan a limitar el sobreajuste;
+    # Adam ajusta los parámetros a partir de los gradientes.
 
     def __init__(
         self,
@@ -285,7 +296,7 @@ class RedNeuronalMLP:
             self.pesos.append(matriz_w)
             self.sesgos.append(vector_b)
 
-        # Inicializo los momentos de primer orden (m) y segundo orden (v) para Adam.
+        # Adam conserva promedios del gradiente y de su cuadrado para adaptar cada actualización.
         self.m_w = [[[0.0] * self.tamanos[i] for _ in range(self.tamanos[i + 1])] for i in range(self.num_capas)]
         self.v_w = [[[0.0] * self.tamanos[i] for _ in range(self.tamanos[i + 1])] for i in range(self.num_capas)]
         self.m_b = [[0.0] * self.tamanos[i + 1] for i in range(self.num_capas)]
@@ -293,8 +304,8 @@ class RedNeuronalMLP:
         self.paso_adam = 0
 
     def propagacion_adelante(self, x, entrenando=False):
-        # Paso el vector de entrada capa por capa (forward pass) y guardo las activaciones
-        # porque las voy a necesitar durante la retropropagación.
+        # Paso los datos por cada capa y guardo activaciones y máscaras de Dropout
+        # para reutilizarlas al calcular los gradientes durante la retropropagación.
         activaciones = [x]
         mascaras_dropout = []
         actual = x
@@ -304,6 +315,7 @@ class RedNeuronalMLP:
             vector_b = self.sesgos[idx]
             es_salida = (idx == self.num_capas - 1)
 
+            # Calculo la combinación lineal que alimenta la activación de la capa.
             z = [producto_punto(fila_w, actual) + b for fila_w, b in zip(matriz_w, vector_b)]
 
             if not es_salida:
@@ -311,7 +323,8 @@ class RedNeuronalMLP:
                 a = [val if val > 0.0 else 0.0 for val in z]
                 tasa_drop = self.tasas_dropout[idx] if idx < len(self.tasas_dropout) else 0.0
                 if entrenando and tasa_drop > 0.0:
-                    # Aplico Dropout invertido: apago neuronas al azar y escalo las activas.
+                    # Apago neuronas al azar solo durante el entrenamiento y escalo las activas
+                    # para conservar el nivel esperado de activación.
                     escala_keep = 1.0 / (1.0 - tasa_drop)
                     mascara = [
                         escala_keep if self.generador.random() >= tasa_drop else 0.0
@@ -333,8 +346,8 @@ class RedNeuronalMLP:
         return actual, activaciones, mascaras_dropout
 
     def evaluar_perdida_y_exactitud(self, entradas, etiquetas, pesos_clase=None):
-        # En una sola pasada calculo tanto la pérdida Cross-Entropy (+ L2) como el Accuracy,
-        # evitando repetir la propagación hacia adelante dos veces por época.
+        # En una pasada calculo Cross-Entropy y Accuracy para evitar repetir la inferencia.
+        # Los pesos de clase solo se aplican si se solicitan; la regularización L2 se suma al final.
         total = len(etiquetas)
         suma_ce = 0.0
         aciertos = 0
@@ -349,14 +362,15 @@ class RedNeuronalMLP:
         perdida_datos = suma_ce / total
         suma_l2 = 0.0
         if self.l2_lambda > 0.0:
+            # Sumo los cuadrados de los pesos para penalizar parámetros excesivamente grandes.
             for matriz_w in self.pesos:
                 for fila in matriz_w:
                     suma_l2 += producto_punto(fila, fila)
         return perdida_datos + 0.5 * self.l2_lambda * suma_l2, aciertos / total
 
     def actualizar_con_adam(self, grad_w, grad_b, beta1=0.9, beta2=0.999, eps=1e-8):
-        # Implemento el optimizador Adam: combina momento (beta1) y escala adaptativa (beta2)
-        # con corrección de sesgo para converger rápido y estable.
+        # Actualizo pesos y sesgos con Adam: beta1 suaviza gradientes y beta2 su magnitud.
+        # La corrección de sesgo compensa que los promedios empiezan en cero.
         self.paso_adam += 1
         correccion_m = 1.0 - (beta1 ** self.paso_adam)
         correccion_v = 1.0 - (beta2 ** self.paso_adam)
@@ -398,7 +412,7 @@ class RedNeuronalMLP:
                 vec_b[i] -= lr * m_hat / (math.sqrt(v_hat) + eps)
 
     def entrenar_minilote(self, lote_x, lote_y, pesos_clase=None):
-        # Acumulo los gradientes del mini-lote mediante backpropagation y luego actualizo pesos con Adam.
+        # Calculo gradientes con backpropagation para todo el mini-lote y hago una sola actualización.
         tam_lote = len(lote_y)
         grad_w = [[[0.0] * self.tamanos[i] for _ in range(self.tamanos[i + 1])] for i in range(self.num_capas)]
         grad_b = [[0.0] * self.tamanos[i + 1] for i in range(self.num_capas)]
@@ -409,7 +423,8 @@ class RedNeuronalMLP:
             peso_muestra = pesos_clase[y_real] if pesos_clase else 1.0
             suma_ce_lote += -peso_muestra * math.log(max(probs[y_real], 1e-12))
 
-            # Gradiente de Softmax + Cross-Entropy en la capa de salida: (probs - one_hot(y)) * peso.
+            # Para Softmax con Cross-Entropy, el gradiente de salida es probs - etiqueta esperada.
+            # Multiplico por el peso de clase para penalizar más los errores minoritarios.
             delta = [p * peso_muestra for p in probs]
             delta[y_real] -= peso_muestra
 
@@ -454,7 +469,8 @@ class RedNeuronalMLP:
                             for dp, a_val in zip(delta_prev, act_prev)
                         ]
 
-        # Promedio los gradientes del mini-lote y agrego el término de regularización L2.
+        # Promedio los gradientes para que la actualización no dependa del tamaño del mini-lote
+        # y agrego L2 a los gradientes de los pesos.
         inv_lote = 1.0 / tam_lote
         for idx in range(self.num_capas):
             matriz_w = self.pesos[idx]
@@ -478,6 +494,7 @@ class RedNeuronalMLP:
         )
 
     def restaurar_pesos(self, copia):
+        # Copio de vuelta los pesos y sesgos de la época con menor pérdida de validación.
         pesos_copia, sesgos_copia = copia
         self.pesos = [[fila[:] for fila in matriz] for matriz in pesos_copia]
         self.sesgos = [vec[:] for vec in sesgos_copia]
@@ -494,7 +511,8 @@ class RedNeuronalMLP:
         pesos_clase=None,
         callback_progreso=None,
     ):
-        # Entreno la red por mini-lotes monitoreando la pérdida en validación para detenerme a tiempo.
+        # Entreno por mini-lotes y evalúo en validación al final de cada época.
+        # Si la pérdida deja de mejorar durante "paciencia" épocas, detengo y restauro el mejor estado.
         historial = {"train_loss": [], "val_loss": [], "val_accuracy": []}
         mejor_val_loss = float("inf")
         mejores_pesos = self.clonar_pesos()
@@ -520,7 +538,7 @@ class RedNeuronalMLP:
             if callback_progreso:
                 callback_progreso(epoca, epocas, perdida_train, perdida_val, acc_val)
 
-            # Aplico Early Stopping: guardo pesos si mejora la validación; si no mejora, cuento paciencia.
+            # Guardo los parámetros si mejora la pérdida; si no, avanzo el contador de paciencia.
             if perdida_val < mejor_val_loss - 1e-4:
                 mejor_val_loss = perdida_val
                 mejores_pesos = self.clonar_pesos()
@@ -582,9 +600,10 @@ class RedNeuronalMLP:
 # ---------------------------------------------------------------------------
 
 def evaluar_predicciones(y_real, y_pred, nombres_clases=NOMBRES_CLASES):
-    # Construyo la matriz de confusión y calculo Accuracy, Precision, Recall y F1-score desde cero.
+    # Construyo la matriz de confusión y calculo Accuracy, Precision, Recall y F1-score sin librerías externas.
     n_clases = len(nombres_clases)
     matriz = [[0] * n_clases for _ in range(n_clases)]
+    # Las filas indican la clase real y las columnas la clase predicha.
     for real, pred in zip(y_real, y_pred):
         if not 0 <= real < n_clases or not 0 <= pred < n_clases:
             raise ValueError(f"Etiqueta o predicción fuera del rango de clases: real={real}, predicho={pred}.")
@@ -599,6 +618,8 @@ def evaluar_predicciones(y_real, y_pred, nombres_clases=NOMBRES_CLASES):
     recalls = []
     f1s = []
 
+    # TP son aciertos de la clase; FP son otras clases predichas como ella y FN sus casos omitidos.
+    # Promedio las métricas por clase para que ninguna clase domine el resultado macro.
     for i, nombre in enumerate(nombres_clases):
         tp = matriz[i][i]
         fp = sum(matriz[fila][i] for fila in range(n_clases)) - tp
@@ -644,8 +665,8 @@ def ejecutar_entrenamiento(
     ejecutar_cv=True,
     callback_estado=None,
 ):
-    # Coordino todo el pipeline: carga, división 80/20, validación cruzada opcional,
-    # entrenamiento del modelo final y guardado de artefactos.
+    # Coordino el pipeline completo. La prueba se separa primero y se mantiene intacta;
+    # la validación cruzada usa solo entrenamiento y puede omitirse para reducir el tiempo.
     inicio = time.time()
     carpeta = Path(carpeta_salida)
     carpeta.mkdir(parents=True, exist_ok=True)
@@ -655,7 +676,7 @@ def ejecutar_entrenamiento(
     x, y, columnas = cargar_dataset(ruta_csv)
     x_train, x_test, y_train, y_test = division_estratificada(x, y, proporcion_prueba=0.20, semilla=SEMILLA)
 
-    # Validación cruzada estratificada de 5 particiones sobre el conjunto de entrenamiento.
+    # Mido estabilidad en varios folds del conjunto de entrenamiento, sin tocar el test final.
     metricas_folds = []
     if ejecutar_cv:
         folds = crear_folds_estratificados(y_train, k_folds=k_folds, semilla=SEMILLA)
@@ -683,7 +704,7 @@ def ejecutar_entrenamiento(
             m_fold["epocas_entrenadas"] = len(hist_fold["train_loss"])
             metricas_folds.append(m_fold)
 
-    # Entreno el modelo final separando un 20% interno de validación para Early Stopping.
+    # Aparto una validación interna del entrenamiento para Early Stopping; no uso el test para ajustar.
     if callback_estado:
         callback_estado(
             f"Entrenando modelo MLP final ({len(columnas)} → 64 → 32 → {len(NOMBRES_CLASES)})..."
@@ -696,6 +717,7 @@ def ejecutar_entrenamiento(
 
     def _progreso(ep, total_ep, tr_l, va_l, va_acc):
         if callback_estado:
+            # Reenvío el avance para que la interfaz pueda actualizar su indicador.
             callback_estado(
                 f"Modelo final — Época {ep}/{total_ep} | Loss train: {tr_l:.4f} | Loss val: {va_l:.4f} | Acc val: {va_acc:.2%}"
             )
@@ -707,12 +729,12 @@ def ejecutar_entrenamiento(
         callback_progreso=_progreso,
     )
 
-    # Evalúo de forma ciega sobre el 20% de prueba real (nunca tocado ni balanceado).
+    # Evalúo una sola vez sobre el 20% de prueba real, que no participó en ajuste ni balanceo.
     preds_test = modelo_final.predecir_clases(x_test)
     metricas_test = evaluar_predicciones(y_test, preds_test)
     metricas_test["epocas_entrenadas"] = len(historial_final["train_loss"])
 
-    # Guardo el modelo, la matriz de confusión y el reporte completo de métricas.
+    # Guardo pesos, matriz CSV y métricas JSON para que la app los cargue sin volver a entrenar.
     modelo_final.guardar(carpeta / "modelo_mlp.json")
     with open(carpeta / "matriz_confusion.csv", mode="w", encoding="utf-8-sig", newline="") as f:
         escritor = csv.writer(f)
@@ -742,7 +764,8 @@ def ejecutar_entrenamiento(
 
 
 def predecir_nino(modelo, meta, datos_usuario):
-    # Transformo los datos del formulario y obtengo la clase estimada y sus probabilidades.
+    # Transformo el formulario con las estadísticas del entrenamiento y calculo sus probabilidades.
+    # Verifico clases y dimensiones antes de inferir para detectar artefactos incompatibles.
     if modelo.n_salidas != len(NOMBRES_CLASES):
         raise ValueError(
             f"El modelo guardado tiene {modelo.n_salidas} salidas, "
@@ -756,6 +779,7 @@ def predecir_nino(modelo, meta, datos_usuario):
         )
     probs = modelo.predecir_probabilidades([vector])[0]
     clase_idx = max(range(len(probs)), key=lambda i: probs[i])
+    # Devuelvo el índice, el nombre legible y la probabilidad de cada clase para la interfaz.
     return {
         "clase_codigo": clase_idx,
         "clase_nombre": NOMBRES_CLASES[clase_idx],
@@ -764,6 +788,7 @@ def predecir_nino(modelo, meta, datos_usuario):
 
 
 if __name__ == "__main__":
+    # Permito entrenar y mostrar métricas al ejecutar este archivo directamente.
     print("=== Entrenamiento del MLP para Clasificación de Anemia Infantil ===")
     _, res = ejecutar_entrenamiento(
         callback_estado=lambda msg: print("•", msg)

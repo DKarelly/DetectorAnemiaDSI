@@ -81,6 +81,7 @@ class AplicacionAnemia(tk.Tk):
         self.minsize(980, 660)
         self.configure(bg="#f1f5f9")
 
+        # Estas rutas son relativas a la carpeta del proyecto, desde donde se ejecuta la app.
         self.ruta_csv = Path("ENDES_2025_MLP_macrorregion_norte.csv")
         self.ruta_meta = Path("preprocesador_endes.json")
         self.ruta_modelo = Path("artifacts/modelo_mlp.json")
@@ -97,6 +98,7 @@ class AplicacionAnemia(tk.Tk):
         self._cargar_artefactos_iniciales()
 
     def _configurar_estilos(self):
+        # Uso el tema clam para que los controles tengan colores y tamaños uniformes.
         estilo = ttk.Style(self)
         if "clam" in estilo.theme_names():
             estilo.theme_use("clam")
@@ -122,6 +124,7 @@ class AplicacionAnemia(tk.Tk):
         ).pack(anchor="w", pady=(2, 0))
 
     def _construir_pestanas(self):
+        # Separo la predicción, la revisión de métricas y el entrenamiento en vistas independientes.
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True, padx=14, pady=12)
 
@@ -136,6 +139,19 @@ class AplicacionAnemia(tk.Tk):
         self._construir_tab_prediccion()
         self._construir_tab_metricas()
         self._construir_tab_entrenar()
+
+    @staticmethod
+    def _validar_numero(valor, permitir_decimal):
+        # Permito dejar el campo vacío o escribir un decimal incompleto mientras se edita;
+        # rechazo letras, signos, comas y más de un punto decimal.
+        if not valor:
+            return True
+        if permitir_decimal and valor.count(".") > 1:
+            return False
+        return all(
+            "0" <= caracter <= "9" or (permitir_decimal and caracter == ".")
+            for caracter in valor
+        )
 
     # ------------------------------------------------------------------
     # PESTAÑA 1: FORMULARIO DE EVALUACIÓN Y BARRAS DE PROBABILIDAD
@@ -174,7 +190,18 @@ class AplicacionAnemia(tk.Tk):
             )
             var = tk.StringVar(value=defecto)
             self.vars[clave] = var
-            ttk.Entry(panel_izq, textvariable=var, width=16).grid(
+            # Edad y cantidades son enteros; peso, talla y altitud admiten un punto decimal.
+            permitir_decimal = clave in {"peso_kg", "talla_cm", "altitud_m"}
+            validar = self.register(
+                lambda valor, decimal=permitir_decimal: self._validar_numero(valor, decimal)
+            )
+            ttk.Entry(
+                panel_izq,
+                textvariable=var,
+                width=16,
+                validate="key",
+                validatecommand=(validar, "%P"),
+            ).grid(
                 row=fila, column=col + 1, sticky="ew", padx=(0, 14), pady=5
             )
 
@@ -182,6 +209,7 @@ class AplicacionAnemia(tk.Tk):
             "Amazonas", "Áncash", "Cajamarca", "La Libertad",
             "Lambayeque", "Piura", "San Martín", "Tumbes",
         ]
+        # Mantengo las opciones categóricas cerradas para evitar valores que el modelo no conoce.
         campos_combo = [
             ("sexo", "Sexo:", ["Hombre", "Mujer"], "Hombre"),
             ("department", "Departamento:", departamentos, "Lambayeque"),
@@ -271,6 +299,7 @@ class AplicacionAnemia(tk.Tk):
     # PESTAÑA 2: MÉTRICAS Y MATRIZ DE CONFUSIÓN VISUAL
     # ------------------------------------------------------------------
     def _construir_tab_metricas(self):
+        # Esta vista resume el test separado y permite comparar clases con la matriz de confusión.
         marco = tk.Frame(self.tab_metricas, bg="#f1f5f9")
         marco.pack(fill="both", expand=True, padx=6, pady=6)
         marco.columnconfigure(0, weight=1)
@@ -331,6 +360,7 @@ class AplicacionAnemia(tk.Tk):
     # PESTAÑA 3: CURVA DE PÉRDIDA Y RE-ENTRENAMIENTO EN VIVO
     # ------------------------------------------------------------------
     def _construir_tab_entrenar(self):
+        # La validación cruzada es opcional porque requiere entrenar cinco modelos adicionales.
         marco = tk.Frame(self.tab_entrenar, bg="#f1f5f9")
         marco.pack(fill="both", expand=True, padx=6, pady=6)
         marco.rowconfigure(1, weight=1)
@@ -372,6 +402,7 @@ class AplicacionAnemia(tk.Tk):
     # CARGA DE MODELO, PREDICCIÓN Y DIBUJO DE GRÁFICOS NATIVOS
     # ------------------------------------------------------------------
     def _cargar_artefactos_iniciales(self):
+        # Cargo los archivos existentes y descarto resultados que no coincidan con las tres clases actuales.
         if self.ruta_meta.exists():
             self.meta = cargar_preprocesador(self.ruta_meta)
         if self.ruta_modelo.exists():
@@ -398,6 +429,7 @@ class AplicacionAnemia(tk.Tk):
         self._dibujar_barras_probabilidad({c: 0.0 for c in NOMBRES_CLASES})
 
     def _restaurar_ejemplo(self):
+        # Repongo valores conocidos y válidos para que el usuario pueda probar una predicción de inmediato.
         valores = {
             "edad_meses": "18", "peso_kg": "10.5", "talla_cm": "79.0",
             "altitud_m": "213", "personas_hogar": "4", "ninos_menores_5": "1",
@@ -419,7 +451,7 @@ class AplicacionAnemia(tk.Tk):
             )
             return
 
-        # Valido los campos numéricos ingresados por el usuario.
+        # Convierto las entradas numéricas a float y muestro un aviso si quedó un valor vacío o incompleto.
         try:
             edad = float(self.vars["edad_meses"].get())
             peso = float(self.vars["peso_kg"].get())
@@ -435,6 +467,7 @@ class AplicacionAnemia(tk.Tk):
             messagebox.showerror("Rango de edad", "La edad del niño debe estar entre 6 y 59 meses.")
             return
 
+        # Traduzco las etiquetas legibles del formulario a los códigos que se usaron al entrenar.
         datos_usuario = {
             "edad_meses": edad,
             "peso_kg": peso,
@@ -466,6 +499,7 @@ class AplicacionAnemia(tk.Tk):
     def _dibujar_barras_probabilidad(self, probabilidades):
         c = self.canvas_probs
         c.delete("all")
+        # Dibujo una barra por clase: una barra más larga representa mayor probabilidad Softmax.
         ancho_barra_max = 210
         x_inicio = 125
         y = 18
@@ -489,6 +523,7 @@ class AplicacionAnemia(tk.Tk):
     def _actualizar_vistas_metricas(self):
         if not self.metricas:
             return
+        # Reflejo el reporte del test, los promedios de validación cruzada y las curvas guardadas.
         m = self.metricas["metricas_prueba"]
         arq = " → ".join(str(n) for n in self.metricas["arquitectura"])
         self.lbl_resumen_modelo.config(
@@ -543,6 +578,7 @@ class AplicacionAnemia(tk.Tk):
         etiquetas_cortas = ["Sin\nanemia", "Leve", "Moderada"]
         x0, y0 = 90, 55
         celda = 66
+        # Normalizo el color por el mayor conteo para distinguir visualmente valores altos y bajos.
         max_val = max(max(fila) for fila in matriz) or 1
 
         for j, texto in enumerate(etiquetas_cortas):
@@ -583,6 +619,7 @@ class AplicacionAnemia(tk.Tk):
         if max_loss - min_loss < 1e-6:
             max_loss += 0.5
 
+        # Uso el rango observado en las pérdidas para convertirlas a coordenadas verticales del Canvas.
         # Dibujo ejes y cuadrícula.
         c.create_line(izq, arr, izq, arr + alto, fill="#334155", width=2)
         c.create_line(izq, arr + alto, izq + ancho, arr + alto, fill="#334155", width=2)
@@ -597,6 +634,7 @@ class AplicacionAnemia(tk.Tk):
         n = len(train_loss)
 
         def puntos(serie):
+            # Mapeo cada época al eje X y su pérdida al eje Y para dibujar la línea.
             pts = []
             for idx, val in enumerate(serie):
                 x = izq + (idx / max(1, n - 1)) * ancho
@@ -619,6 +657,7 @@ class AplicacionAnemia(tk.Tk):
     def _iniciar_entrenamiento(self):
         if self.entrenando:
             return
+        # Ejecuto el cálculo en segundo plano y reservo self.after para actualizar widgets desde Tk.
         self.entrenando = True
         self.btn_reentrenar.config(state="disabled")
         self.lbl_estado_train.config(text="Estado: Entrenando en segundo plano...")
@@ -626,6 +665,7 @@ class AplicacionAnemia(tk.Tk):
         incluir_cv = self.var_incluir_cv.get()
 
         def tarea():
+            # Este hilo solo calcula; los cambios de interfaz se programan en el hilo principal.
             try:
                 modelo, resultados = ejecutar_entrenamiento(
                     ruta_csv=self.ruta_csv,
@@ -642,6 +682,7 @@ class AplicacionAnemia(tk.Tk):
         threading.Thread(target=tarea, daemon=True).start()
 
     def _fin_entrenamiento_ok(self):
+        # Reactivo el botón, actualizo los gráficos y confirmo que se guardaron los resultados.
         self.entrenando = False
         self.btn_reentrenar.config(state="normal")
         self.lbl_estado_train.config(text="Estado: Entrenamiento completado.")
@@ -649,6 +690,7 @@ class AplicacionAnemia(tk.Tk):
         messagebox.showinfo("Entrenamiento finalizado", "El modelo MLP se entrenó y guardó correctamente.")
 
     def _fin_entrenamiento_error(self, err):
+        # Restauro la interfaz y presento el error recibido desde el hilo de entrenamiento.
         self.entrenando = False
         self.btn_reentrenar.config(state="normal")
         self.lbl_estado_train.config(text="Estado: Error durante el entrenamiento.")
