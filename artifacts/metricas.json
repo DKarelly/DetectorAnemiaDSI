@@ -16,7 +16,7 @@
     "anemia_leve": 1.0556,
     "anemia_moderada": 1.2667
   },
-  "tiempo_segundos": 239.54,
+  "tiempo_segundos": 224.91,
   "historial_final": {
     "train_loss": [
       1.119632748148058,
