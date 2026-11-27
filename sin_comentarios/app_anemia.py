@@ -68,7 +68,7 @@ class AplicacionAnemia(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.title("Sistema Inteligente MLP — Clasificación de Anemia Infantil (ENDES 2023–2025)")
+        self.title("Sistema Inteligente MLP — Clasificación de Anemia Infantil (ENDES 2025)")
         self.geometry("1080x720")
         self.minsize(980, 660)
         self.configure(bg="#f1f5f9")
